@@ -1,0 +1,52 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "burger",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-23",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SESSIONS",
+        "class_name": "Session",
+      },
+      // Records session names so the landing page can list sessions, including ones opened by URL.
+      {
+        "name": "SESSION_REGISTRY",
+        "class_name": "SessionRegistry",
+      },
+    ],
+  },
+  // Inference through the account's own AI binding: no third-party token, no secret.
+  // AI Gateway passthrough routes on env.AI.fetch() need AI Gateway enabled in the account.
+  "ai": {
+    "binding": "AI",
+  },
+  "vars": {
+    // AI Gateway gateway id used for binding inference; "default" needs no gateway object.
+    "CLOUDFLARE_GATEWAY_ID": "default",
+    // Email that may see and open sessions created before sign-in existed. Empty hides them.
+    "LEGACY_OWNER_EMAIL": "fangbrookhe@gmail.com",
+  },
+  "exports": {
+    "Session": {
+      "type": "durable-object",
+      "storage": "sqlite",
+    },
+    // Records session ids so the landing page can list them, because instance listing is not available here.
+    "SessionRegistry": {
+      "type": "durable-object",
+      "storage": "sqlite",
+    },
+  },
+
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"],
+  },
+  "observability": {
+    "enabled": true,
+    "traces": {
+      "enabled": true,
+    },
+  },
+}
